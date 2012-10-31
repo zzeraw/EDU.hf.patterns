@@ -89,7 +89,7 @@ class Squeak implements quackBehavior{
 }
 
 class MiniDucksSimulator {
-    public static function main($args) {
+    public static function main($args = NULL) {
         $mallard = new MallardDuck();
         $mallard->performQuack();
         $mallard->performFly();
@@ -101,7 +101,7 @@ class MiniDucksSimulator {
     }
 }
 
-MiniDucksSimulator::main(NULL);
+MiniDucksSimulator::main();
 
 
 ?>
