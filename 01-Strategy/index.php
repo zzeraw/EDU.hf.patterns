@@ -79,7 +79,7 @@ class Quack implements quackBehavior{
 }
 class MuteQuack implements quackBehavior{
     public function quack() {
-        echo "<div><Silence></div>";
+        echo "<div><<Silence>></div>";
     }
 }
 class Squeak implements quackBehavior{
