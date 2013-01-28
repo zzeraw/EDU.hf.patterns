@@ -29,6 +29,7 @@ abstract class Duck {
         $this->quackBehavior = $qb;
     }
 }
+
 class MallardDuck extends Duck {
     function __construct() {
         $this->quackBehavior  = new Quack();
@@ -39,6 +40,7 @@ class MallardDuck extends Duck {
         echo "<div>I'm a real Mallard Duck!</div>";
     }
 }
+
 class ModelDuck extends Duck {
     function __construct() {
         $this->quackBehavior  = new Quack();
@@ -50,19 +52,23 @@ class ModelDuck extends Duck {
     }
 }
 
+
 interface FlyBehavior {
     public function fly();
 }
+
 class FlyWithWings implements FlyBehavior {
     public function fly() {
         echo "<div>I'm flying!</div>";
     }
 }
+
 class FlyNoWay implements FlyBehavior {
     public function fly() {
         echo "<div>I can't fly!</div>";
     }
 }
+
 class FlyRockedPowered implements FlyBehavior {
     public function fly() {
         echo "<div>I'm flying with a rocked!</div>";
