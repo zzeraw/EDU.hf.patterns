@@ -154,6 +154,33 @@ class CeilingFan extends Room
     }
 }
 
+class TV extends Room
+{
+    public function on()
+    {
+        echo '<div>' . $this->room . ': TV is ON</div>';
+    }
+
+    public function off()
+    {
+        echo '<div>' . $this->room . ': TV is OFF</div>';
+    }
+}
+
+class Hottub extends Room
+{
+    public function on()
+    {
+        echo '<div>' . $this->room . ': Hottub is ON</div>';
+    }
+
+    public function off()
+    {
+        echo '<div>' . $this->room . ': Hottub is OFF</div>';
+    }
+}
+
+
 /**
  * Класс команды должен реализовывать интерфейс Command.
  */
@@ -360,6 +387,117 @@ class CeilingFanOffCommand extends CeilingFanCommand
     }
 }
 
+class HottubOnCommand implements Command
+{
+    public $hottub;
+
+    function __construct(Hottub $hottub)
+    {
+        $this->hottub = $hottub;
+    }
+
+    public function execute()
+    {
+        $this->hottub->on();
+    }
+
+    public function undo()
+    {
+        $this->hottub->off();
+    }
+}
+
+class HottubOffCommand implements Command
+{
+    public $hottub;
+
+    function __construct(Hottub $hottub)
+    {
+        $this->hottub = $hottub;
+    }
+
+    public function execute()
+    {
+        $this->hottub->off();
+    }
+
+    public function undo()
+    {
+        $this->hottub->on();
+    }
+}
+
+
+class TVOnCommand implements Command
+{
+    public $tv;
+
+    function __construct(TV $tv)
+    {
+        $this->tv = $tv;
+    }
+
+    public function execute()
+    {
+        $this->tv->on();
+    }
+
+    public function undo()
+    {
+        $this->tv->off();
+    }
+}
+
+class TVOffCommand implements Command
+{
+    public $tv;
+
+    function __construct(TV $tv)
+    {
+        $this->tv = $tv;
+    }
+
+    public function execute()
+    {
+        $this->tv->off();
+    }
+
+    public function undo()
+    {
+        $this->tv->on();
+    }
+}
+
+
+/**
+ * Новая разновидность команд, которая может выполнять другие команды. Причем сразу несколько.
+ */
+class MacroCommand implements Command
+{
+    public $commands = array();
+
+    function __construct($commands)
+    {
+        $this->commands = $commands;
+    }
+
+    /**
+     * При выполнении макрокоманды команды будут выполнены последовательно
+     */
+    public function execute()
+    {
+        for ($i= 1; $i < count($this->commands); $i++) {
+            $this->commands[$i]->execute();
+        }
+    }
+
+    public function undo()
+    {
+        for ($i= 1; $i < count($this->commands); $i++) {
+            $this->commands[$i]->undo();
+        }
+    }
+}
 
 
 class SimpleRemoteControl
@@ -479,6 +617,43 @@ class RemoteControlWithUndo
     }
 }
 
+class MacroRemoteLoader
+{
+    public static function main()
+    {
+        $remoteControl = new RemoteControlWithUndo;
+
+        $light  = new Light('Living Room');
+        $tv     = new TV('Living Room');
+        $stereo = new Stereo('Living Room');
+        $hottub = new Hottub('');
+
+        $lightOn  = new LightOnCommand($light);
+        $tvOn     = new TVOnCommand($tv);
+        $stereoOn = new StereoOnWithCDCommand($stereo);
+        $hottubOn = new HottubOnCommand($hottub);
+
+        $lightOff  = new LightOffCommand($light);
+        $tvOff     = new TVOffCommand($tv);
+        $stereoOff = new StereoOffCommand($stereo);
+        $hottubOff = new HottubOffCommand($hottub);
+
+        // Массивы команд включения и выключения
+        $partyOn = array($lightOn, $tvOn, $stereoOn, $hottubOn);
+        $partyOff = array($lightOff, $tvOff, $stereoOff, $hottubOff);
+
+        // Два объекта макрокоманд, в которых они хранятся
+        $partyOnMacro = new MacroCommand($partyOn);
+        $partyOffMacro = new MacroCommand($partyOff);
+
+        // Макрокоманда связывается с кнопкой, как и любая другая команда.
+        $remoteControl->setCommand(0, $partyOnMacro, $partyOffMacro);
+
+        $remoteControl->onButtonWasPushed(0);
+        $remoteControl->offButtonWasPushed(0);
+    }
+}
+
 
 class RemoteLoader
 {
@@ -547,7 +722,8 @@ class RemoteLoader
 
 }
 
-RemoteLoader::main();
+// RemoteLoader::main();
+MacroRemoteLoader::main();
 
 // SimpleRemoteControlTest::main();
 
